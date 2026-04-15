@@ -10,13 +10,12 @@ const HOST = process.env.HOST || "0.0.0.0";
 const app = express();
 const server = http.createServer(app);
 
+app.use(securityMiddleware());
 app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Hello from Express server!");
 });
-
-app.use(securityMiddleware());
 
 app.use("/matches", matchRouter);
 
