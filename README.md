@@ -38,7 +38,7 @@ Think of it as the **engine behind a live sports ticker or scoreboard** — like
 ```
 Client (REST/WS)        Express + WS Server           PostgreSQL
     │                         │                            │
-    │── POST /matches ────────▶│                            │
+    │── POST /matches ────────▶│                           │
     │                         │── Insert match ───────────▶│
     │                         │◀─ Return match ────────────│
     │◀── 201 Created ─────────│                            │
@@ -48,7 +48,7 @@ Client (REST/WS)        Express + WS Server           PostgreSQL
     │         │  { type: "match_created", ... }  │         │
     │         └──────────────────────────────────┘         │
     │                         │                            │
-    │── WS: subscribe ────────▶│                            │
+    │── WS: subscribe ────────▶│                           │
     │         { type: "subscribe", matchId: 4 }            │
     │◀── { type: "subscribed", matchId: 4 } ──────         │
     │                         │                            │
@@ -325,34 +325,34 @@ This project uses [Arcjet](https://arcjet.com) for production-grade API protecti
 
 Building this project was a deep dive into several real-world backend concepts. Here's what stands out:
 
-**WebSockets & HTTP coexistence**
-Running both an HTTP REST API and a WebSocket server on the same port using Node's `http.createServer()` and upgrading connections — understanding how the same TCP port handles both protocols.
+### 1. **WebSockets & HTTP coexistence**
+Running both an HTTP REST API and a WebSocket server on the same port using Node's `http.createServer()` and upgrading connections - understanding how the same TCP port handles both protocols.
 
-**WebSocket heartbeats & connection health**
+### 2. **WebSocket heartbeats & connection health**
 Implementing a ping/pong heartbeat loop with `isAlive` flags to detect and terminate zombie connections. Without this, dead clients silently accumulate and waste server memory.
 
-**Per-match pub/sub with a Map of Sets**
+### 3. **Per-match pub/sub with a Map of Sets**
 Using `Map<matchId, Set<socket>>` to manage targeted subscriptions — broadcasting commentary only to clients subscribed to a specific match, rather than flooding all connected clients.
 
-**Arcjet on WebSocket connections**
+### 4. **Arcjet on WebSocket connections**
 Protecting WebSocket upgrades with independent rate limiting — using WebSocket close codes (`1008` for policy violation, `1013` for rate limit) instead of HTTP status codes.
 
-**ESM in Node.js**
+### 5. **ESM in Node.js**
 ES Modules require explicit `.js` extensions on all imports — unlike CommonJS which resolves them automatically. This is a common gotcha when migrating or starting modern Node.js projects.
 
-**Drizzle ORM type safety**
+### 6. **Drizzle ORM type safety**
 Code-first schema definitions with `pg-core` — understanding how `.array()`, `text()`, `jsonb()`, and `integer()` map to actual PostgreSQL column types, and why a wrong type (like `integer` for a `period` string) causes hard runtime crashes.
 
-**Zod v4 breaking changes**
+### 7. **Zod v4 breaking changes**
 `z.record()` now requires two arguments in Zod v4 (`z.record(z.string(), z.unknown())`). Also `z.iso.datetime()` replaces `z.string().datetime()`. Staying current with library major versions matters.
 
-**Express router `mergeParams`**
+### 8 **Express router `mergeParams`**
 When mounting child routers, parent route params (like `:id`) are stripped by default. `Router({ mergeParams: true })` is essential for nested routes to access parent params.
 
-**Arcjet for real-world API security**
+### 9. **Arcjet for real-world API security**
 Integrating bot detection and rate limiting as middleware — and understanding why HTTP clients like Postman appear as "bots" to a `detectBot` rule during development.
 
-**IPv6 vs IPv4 on localhost**
+### 10. **IPv6 vs IPv4 on localhost**
 Node.js 18+ resolves `localhost` to `::1` (IPv6) by default. If your server binds to `0.0.0.0` (IPv4), you must use `127.0.0.1` explicitly in clients.
 
 ---
