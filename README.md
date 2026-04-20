@@ -1,4 +1,4 @@
-## 📖 Introduction?
+## 📖 Introduction
 
 **Sportz** is a **real-time sports data backend** built with Node.js, Express, and WebSockets. It allows you to:
 
