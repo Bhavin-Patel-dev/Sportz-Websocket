@@ -123,7 +123,7 @@ export function attachWebSocketServer(server) {
       socket.terminate();
     });
 
-    socket.on("clean", () => {
+    socket.on("close", () => {
       cleanupSubscriptions(socket);
     });
 
